@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__937fd6c9-3875-427c-9832-a39db4f6d2f2__use_figma",
+      "Bash(npx --version)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

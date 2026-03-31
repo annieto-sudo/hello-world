@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Inspection Booking — Citrus Design System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Citrus Design System Tokens ─── */
+    :root {
+      /* Brand */
+      --brand-primary:        #506ec3;
+      --brand-primary-hover:  #3f5eb6;
+      --brand-primary-press:  #2a3f79;
+      --brand-bg2:            #f0f2fa;
+      --brand-accent:         #ffa375;
+      --brand-accent-hover:   #ffb18a;
+
+      /* Surface containers */
+      --surf-lowest:   #ffffff;
+      --surf-low:      #fafaf8;
+      --surf-mid:      #f5f5f3;
+      --surf-high:     #eeeeec;
+      --surf-highest:  #e1e0dd;
+
+      /* Neutrals */
+      --neu-100: #fafaf8;
+      --neu-200: #f5f5f3;
+      --neu-300: #eeeeec;
+      --neu-400: #e1e0dd;
+      --neu-500: #d9d9d9;
+      --neu-600: #c6c4c2;
+      --neu-700: #b2b0ad;
+      --neu-800: #9e9c99;
+      --neu-900: #8a8884;
+      --neu-1000: #76736f;
+      --neu-1100: #625f5a;
+      --neu-1200: #4e4b46;
+      --neu-1300: #3a3731;
+      --neu-1400: #21201f;
+
+      /* Status */
+      --success-fg:  #2d822b;
+      --success-bg:  #eaffe9;
+      --warning-fg:  #855f00;
+      --warning-bg:  #fffaeb;
+      --danger-fg:   #af3535;
+      --danger-bg:   #ffeeee;
+
+      /* Typography */
+      --font: 'Inter', system-ui, sans-serif;
+
+      /* Radius */
+      --r-xs:  4px;
+      --r-s:   6px;
+      --r-m:   8px;
+      --r-l:   12px;
+      --r-xl:  16px;
+      --r-xxl: 24px;
+      --r-full: 99px;
+
+      /* Shadow */
+      --shadow-4:  0 1px 2px rgba(33,32,31,.08), 0 2px 4px rgba(33,32,31,.10);
+      --shadow-8:  0 2px 4px rgba(33,32,31,.08), 0 4px 8px rgba(33,32,31,.10);
+      --shadow-16: 0 4px 8px rgba(33,32,31,.08), 0 8px 16px rgba(33,32,31,.10);
+      --shadow-32: 0 8px 16px rgba(33,32,31,.10), 0 14px 32px rgba(33,32,31,.14);
+
+      /* Spacing */
+      --sp-2:  2px;
+      --sp-4:  4px;
+      --sp-6:  6px;
+      --sp-8:  8px;
+      --sp-10: 10px;
+      --sp-12: 12px;
+      --sp-16: 16px;
+      --sp-20: 20px;
+      --sp-24: 24px;
+      --sp-32: 32px;
+      --sp-40: 40px;
+      --sp-48: 48px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--surf-mid);
+      color: var(--neu-1400);
+      font-size: 14px;
+      line-height: 20px;
+      min-height: 100vh;
+    }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      background: var(--surf-lowest);
+      border-bottom: 1px solid var(--neu-400);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 var(--sp-24);
+      gap: var(--sp-16);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-4);
+    }
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-8);
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--neu-1400);
+      text-decoration: none;
+    }
+    .topbar-logo-icon {
+      width: 28px; height: 28px;
+      background: var(--brand-accent);
+      border-radius: var(--r-m);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .topbar-divider { width: 1px; height: 20px; background: var(--neu-400); }
+    .topbar-title { font-size: 14px; color: var(--neu-900); font-weight: 400; }
+    .topbar-spacer { flex: 1; }
+    .topbar-avatar {
+      width: 32px; height: 32px;
+      border-radius: var(--r-full);
+      background: var(--brand-primary);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .topbar-notif {
+      position: relative;
+      cursor: pointer;
+      color: var(--neu-900);
+      display: flex; align-items: center;
+    }
+    .topbar-notif svg { width: 20px; height: 20px; }
+    .notif-dot {
+      position: absolute; top: 0; right: 0;
+      width: 8px; height: 8px;
+      background: var(--brand-accent);
+      border-radius: var(--r-full);
+      border: 2px solid white;
+    }
+
+    /* ─── Layout ─── */
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: var(--sp-32) var(--sp-24) var(--sp-48);
+    }
+
+    .page-header { margin-bottom: var(--sp-32); }
+    .page-header h1 {
+      font-size: 28px; line-height: 36px; font-weight: 500;
+      color: var(--neu-1400);
+      margin-bottom: var(--sp-4);
+    }
+    .page-header p { color: var(--neu-900); font-size: 14px; }
+
+    /* ─── Step Indicator ─── */
+    .steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--sp-32);
+      gap: 0;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-8);
+      flex: 1;
+      position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--neu-400);
+      margin: 0 var(--sp-12);
+      transition: background .3s;
+    }
+    .step.completed:not(:last-child)::after { background: var(--brand-primary); }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: var(--r-full);
+      border: 2px solid var(--neu-500);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      color: var(--neu-900);
+      background: white;
+      flex-shrink: 0;
+      transition: all .25s;
+    }
+    .step.active .step-num {
+      border-color: var(--brand-primary);
+      background: var(--brand-primary);
+      color: white;
+    }
+    .step.completed .step-num {
+      border-color: var(--brand-primary);
+      background: var(--brand-primary);
+      color: white;
+    }
+    .step-label {
+      font-size: 12px; line-height: 16px;
+      color: var(--neu-800);
+      white-space: nowrap;
+    }
+    .step.active .step-label { color: var(--brand-primary); font-weight: 500; }
+    .step.completed .step-label { color: var(--brand-primary); }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--surf-lowest);
+      border: 1px solid var(--neu-400);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-4);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: var(--sp-20) var(--sp-24);
+      border-bottom: 1px solid var(--neu-300);
+    }
+    .card-header h2 {
+      font-size: 16px; line-height: 22px; font-weight: 500;
+      color: var(--neu-1400);
+    }
+    .card-header p { font-size: 12px; color: var(--neu-900); margin-top: var(--sp-2); }
+    .card-body { padding: var(--sp-24); }
+    .card-footer {
+      padding: var(--sp-16) var(--sp-24);
+      border-top: 1px solid var(--neu-300);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--sp-8);
+      background: var(--surf-low);
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--sp-6);
+      padding: 0 var(--sp-16);
+      height: 36px;
+      border-radius: var(--r-m);
+      font-family: var(--font);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background .15s, box-shadow .15s, transform .1s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary {
+      background: var(--brand-primary);
+      color: white;
+      box-shadow: var(--shadow-4);
+    }
+    .btn-primary:hover { background: var(--brand-primary-hover); }
+    .btn-primary:active { background: var(--brand-primary-press); }
+    .btn-secondary {
+      background: var(--surf-lowest);
+      color: var(--neu-1300);
+      border: 1px solid var(--neu-500);
+    }
+    .btn-secondary:hover { background: var(--neu-200); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--brand-primary);
+    }
+    .btn-ghost:hover { background: var(--brand-bg2); }
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      border: 1px solid #f5c6c6;
+    }
+    .btn-danger:hover { background: #ffe0e0; }
+    .btn-sm { height: 28px; padding: 0 var(--sp-10); font-size: 12px; }
+    .btn-lg { height: 44px; padding: 0 var(--sp-24); font-size: 16px; }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* ─── Form Controls ─── */
+    .form-group { margin-bottom: var(--sp-20); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16); }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-16); }
+
+    label {
+      display: block;
+      font-size: 12px; font-weight: 500;
+      color: var(--neu-1100);
+      margin-bottom: var(--sp-6);
+    }
+    label .required { color: var(--danger-fg); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      height: 36px;
+      padding: 0 var(--sp-10);
+      border: 1px solid var(--neu-500);
+      border-radius: var(--r-m);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--neu-1400);
+      background: var(--surf-lowest);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+    }
+    textarea { height: auto; padding: var(--sp-10); resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(80,110,195,.15);
+    }
+    input::placeholder, textarea::placeholder { color: var(--neu-700); }
+    .input-hint { font-size: 12px; color: var(--neu-800); margin-top: var(--sp-4); }
+    .input-error { font-size: 12px; color: var(--danger-fg); margin-top: var(--sp-4); }
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute; left: var(--sp-10); top: 50%;
+      transform: translateY(-50%);
+      color: var(--neu-800);
+      pointer-events: none;
+    }
+    .input-icon ~ input,
+    .input-icon ~ select { padding-left: var(--sp-32); }
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: '';
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--neu-800);
+      pointer-events: none;
+    }
+
+    /* ─── Inspection Type Cards ─── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-12);
+      margin-bottom: var(--sp-24);
+    }
+    .type-card {
+      border: 2px solid var(--neu-400);
+      border-radius: var(--r-l);
+      padding: var(--sp-20);
+      cursor: pointer;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      background: var(--surf-lowest);
+      position: relative;
+    }
+    .type-card:hover {
+      border-color: var(--brand-primary);
+      background: var(--brand-bg2);
+      box-shadow: var(--shadow-8);
+    }
+    .type-card.selected {
+      border-color: var(--brand-primary);
+      background: var(--brand-bg2);
+      box-shadow: 0 0 0 4px rgba(80,110,195,.12);
+    }
+    .type-card-check {
+      position: absolute; top: var(--sp-12); right: var(--sp-12);
+      width: 20px; height: 20px;
+      border-radius: var(--r-full);
+      border: 2px solid var(--neu-500);
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .type-card.selected .type-card-check {
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
+    }
+    .type-card-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--r-l);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: var(--sp-12);
+    }
+    .type-card-title {
+      font-size: 14px; font-weight: 500;
+      color: var(--neu-1400);
+      margin-bottom: var(--sp-4);
+    }
+    .type-card-desc { font-size: 12px; color: var(--neu-900); line-height: 16px; }
+
+    /* ─── Time Slots ─── */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-8);
+    }
+    .time-slot {
+      border: 1px solid var(--neu-400);
+      border-radius: var(--r-m);
+      padding: var(--sp-8) var(--sp-10);
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px; font-weight: 500;
+      color: var(--neu-1200);
+      background: var(--surf-lowest);
+      transition: all .15s;
+    }
+    .time-slot:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      background: var(--brand-bg2);
+    }
+    .time-slot.selected {
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
+      color: white;
+      box-shadow: var(--shadow-4);
+    }
+    .time-slot.unavailable {
+      opacity: .4;
+      cursor: not-allowed;
+      pointer-events: none;
+      text-decoration: line-through;
+    }
+
+    /* ─── Badge / Chip ─── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--r-full);
+      font-size: 11px; font-weight: 500;
+      line-height: 16px;
+    }
+    .badge-brand { background: var(--brand-bg2); color: var(--brand-primary); }
+    .badge-success { background: var(--success-bg); color: var(--success-fg); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning-fg); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger-fg); }
+    .badge-neutral { background: var(--neu-300); color: var(--neu-1100); }
+
+    /* ─── Summary Panel ─── */
+    .summary-panel {
+      background: var(--surf-low);
+      border: 1px solid var(--neu-400);
+      border-radius: var(--r-l);
+      padding: var(--sp-16) var(--sp-20);
+    }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      padding: var(--sp-8) 0;
+      border-bottom: 1px solid var(--neu-300);
+      font-size: 13px;
+    }
+    .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .summary-row:first-child { padding-top: 0; }
+    .summary-label { color: var(--neu-900); }
+    .summary-value { color: var(--neu-1400); font-weight: 500; text-align: right; }
+
+    /* ─── Inspector Card ─── */
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-12);
+    }
+    .inspector-card {
+      border: 2px solid var(--neu-400);
+      border-radius: var(--r-l);
+      padding: var(--sp-16);
+      cursor: pointer;
+      transition: all .15s;
+      display: flex; align-items: flex-start; gap: var(--sp-12);
+      background: var(--surf-lowest);
+    }
+    .inspector-card:hover { border-color: var(--brand-primary); background: var(--brand-bg2); }
+    .inspector-card.selected {
+      border-color: var(--brand-primary);
+      background: var(--brand-bg2);
+    }
+    .inspector-avatar {
+      width: 40px; height: 40px;
+      border-radius: var(--r-full);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .inspector-info { flex: 1; min-width: 0; }
+    .inspector-name { font-weight: 500; font-size: 14px; color: var(--neu-1400); margin-bottom: 2px; }
+    .inspector-role { font-size: 12px; color: var(--neu-900); margin-bottom: var(--sp-6); }
+    .inspector-meta { display: flex; gap: var(--sp-8); flex-wrap: wrap; }
+    .inspector-rating { font-size: 11px; color: var(--neu-900); }
+    .stars { color: #f5a623; }
+
+    /* ─── Calendar Mini ─── */
+    .cal {
+      border: 1px solid var(--neu-400);
+      border-radius: var(--r-l);
+      overflow: hidden;
+      background: var(--surf-lowest);
+    }
+    .cal-header {
+      background: var(--brand-primary);
+      color: white;
+      padding: var(--sp-12) var(--sp-16);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cal-header-month { font-weight: 500; font-size: 14px; }
+    .cal-nav {
+      background: rgba(255,255,255,.15);
+      border: none; border-radius: var(--r-s);
+      color: white; cursor: pointer;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: background .15s;
+    }
+    .cal-nav:hover { background: rgba(255,255,255,.25); }
+    .cal-grid {
+      padding: var(--sp-12) var(--sp-16);
+    }
+    .cal-days-header {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      margin-bottom: var(--sp-8);
+    }
+    .cal-day-name {
+      text-align: center;
+      font-size: 11px; font-weight: 500;
+      color: var(--neu-800);
+      padding: var(--sp-4) 0;
+    }
+    .cal-days {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--r-s);
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--neu-1200);
+      transition: all .12s;
+    }
+    .cal-day:hover { background: var(--brand-bg2); color: var(--brand-primary); }
+    .cal-day.selected {
+      background: var(--brand-primary); color: white; font-weight: 500;
+    }
+    .cal-day.today {
+      font-weight: 600;
+      color: var(--brand-primary);
+      border: 1px solid var(--brand-primary);
+    }
+    .cal-day.today.selected { border: none; }
+    .cal-day.empty { pointer-events: none; }
+    .cal-day.other-month { color: var(--neu-600); }
+    .cal-day.unavailable { color: var(--neu-600); cursor: not-allowed; text-decoration: line-through; }
+
+    /* ─── Confirmation ─── */
+    .confirm-hero {
+      text-align: center;
+      padding: var(--sp-40) var(--sp-24) var(--sp-32);
+    }
+    .confirm-icon {
+      width: 64px; height: 64px;
+      border-radius: var(--r-full);
+      background: var(--success-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto var(--sp-16);
+    }
+    .confirm-code {
+      display: inline-flex; align-items: center; gap: var(--sp-8);
+      background: var(--brand-bg2);
+      border: 1px solid #d1ddff;
+      border-radius: var(--r-m);
+      padding: var(--sp-8) var(--sp-16);
+      font-size: 18px; font-weight: 600;
+      color: var(--brand-primary);
+      letter-spacing: 2px;
+      margin-top: var(--sp-12);
+    }
+
+    /* ─── Divider ─── */
+    .divider { height: 1px; background: var(--neu-300); margin: var(--sp-20) 0; }
+    .divider-label {
+      display: flex; align-items: center; gap: var(--sp-10);
+      font-size: 12px; color: var(--neu-800);
+      margin: var(--sp-20) 0;
+    }
+    .divider-label::before, .divider-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--neu-400);
+    }
+
+    /* ─── Progress Bar ─── */
+    .progress-bar {
+      height: 4px;
+      background: var(--neu-300);
+      border-radius: var(--r-full);
+      overflow: hidden;
+      margin-bottom: var(--sp-32);
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--brand-primary);
+      border-radius: var(--r-full);
+      transition: width .4s ease;
+    }
+
+    /* ─── Message Bar ─── */
+    .msg-bar {
+      display: flex; align-items: flex-start; gap: var(--sp-10);
+      padding: var(--sp-12) var(--sp-16);
+      border-radius: var(--r-m);
+      font-size: 13px;
+      margin-bottom: var(--sp-20);
+    }
+    .msg-bar-info {
+      background: var(--brand-bg2);
+      border: 1px solid #d1ddff;
+      color: var(--brand-primary-press);
+    }
+    .msg-bar-warning {
+      background: var(--warning-bg);
+      border: 1px solid #fde68a;
+      color: var(--warning-fg);
+    }
+    .msg-bar svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── Tag / Chip ─── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--r-full);
+      font-size: 12px; font-weight: 500;
+      background: var(--neu-300);
+      color: var(--neu-1200);
+    }
+
+    /* ─── Tooltip-style helper ─── */
+    .field-tooltip {
+      display: inline-flex; align-items: center;
+      gap: 4px; cursor: help;
+      color: var(--neu-700);
+    }
+    .field-tooltip svg { width: 14px; height: 14px; }
+
+    /* ─── Toggle ─── */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-12) 0;
+      border-bottom: 1px solid var(--neu-300);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-title { font-size: 14px; font-weight: 500; color: var(--neu-1300); }
+    .toggle-desc { font-size: 12px; color: var(--neu-800); margin-top: 2px; }
+    .toggle {
+      position: relative;
+      width: 36px; height: 20px;
+      flex-shrink: 0;
+      margin-left: var(--sp-12);
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--neu-500);
+      border-radius: var(--r-full);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute; left: 2px; top: 2px;
+      width: 16px; height: 16px;
+      background: white;
+      border-radius: var(--r-full);
+      transition: transform .2s;
+      box-shadow: var(--shadow-4);
+    }
+    .toggle input:checked + .toggle-track { background: var(--brand-primary); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+
+    /* ─── List Item ─── */
+    .list-item {
+      display: flex; align-items: center; gap: var(--sp-12);
+      padding: var(--sp-12) 0;
+      border-bottom: 1px solid var(--neu-300);
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--r-m);
+      background: var(--brand-bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .list-item-content { flex: 1; min-width: 0; }
+    .list-item-title { font-size: 14px; font-weight: 500; color: var(--neu-1400); }
+    .list-item-sub { font-size: 12px; color: var(--neu-800); margin-top: 2px; }
+
+    /* ─── Utilities ─── */
+    .hidden { display: none !important; }
+    .mb-4 { margin-bottom: var(--sp-4); }
+    .mb-8 { margin-bottom: var(--sp-8); }
+    .mb-12 { margin-bottom: var(--sp-12); }
+    .mb-16 { margin-bottom: var(--sp-16); }
+    .mb-20 { margin-bottom: var(--sp-20); }
+    .mb-24 { margin-bottom: var(--sp-24); }
+    .text-sm { font-size: 12px; }
+    .text-muted { color: var(--neu-900); }
+    .text-brand { color: var(--brand-primary); }
+    .font-medium { font-weight: 500; }
+    .section-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--neu-1000);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: var(--sp-12);
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-24); }
+  </style>
+</head>
+<body>
+
+<!-- ─── Topbar ─── -->
+<header class="topbar">
+  <a class="topbar-logo" href="#">
+    <div class="topbar-logo-icon">🍊</div>
+    QualityOps
+  </a>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title">Inspection Booking</span>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-notif">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 2a6 6 0 0 0-6 6v3.17L2.5 13.5h15L16 11.17V8a6 6 0 0 0-6-6z"/>
+      <path d="M8.5 17a1.5 1.5 0 0 0 3 0"/>
+    </svg>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="topbar-avatar">AN</div>
+</header>
+
+<!-- ─── Main Page ─── -->
+<main class="page">
+  <div class="page-header">
+    <h1>Book a Quality Inspection</h1>
+    <p>Schedule an on-site inspection with a certified inspector — typically confirmed within 2 hours.</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="steps">
+    <div class="step active" id="stepNav1">
+      <div class="step-num" id="stepNum1">1</div>
+      <span class="step-label">Inspection Type</span>
+    </div>
+    <div class="step" id="stepNav2">
+      <div class="step-num" id="stepNum2">2</div>
+      <span class="step-label">Schedule & Location</span>
+    </div>
+    <div class="step" id="stepNav3">
+      <div class="step-num" id="stepNum3">3</div>
+      <span class="step-label">Inspector & Details</span>
+    </div>
+    <div class="step" id="stepNav4">
+      <div class="step-num" id="stepNum4">4</div>
+      <span class="step-label">Review & Confirm</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ STEP 1 ═══ -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-header">
+        <h2>Select Inspection Type</h2>
+        <p>Choose the category that best describes what you need inspected.</p>
+      </div>
+      <div class="card-body">
+        <div class="msg-bar msg-bar-info">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 3a.75.75 0 1 1 0 1.5A.75.75 0 0 1 8 4zm1 7.75H7v-4h2v4z"/>
+          </svg>
+          All inspections include a digital report delivered within 24 hours of completion.
+        </div>
+
+        <div class="type-grid">
+          <div class="type-card selected" onclick="selectType(this)" data-type="Manufacturing Quality">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#f0f2fa;">🏭</div>
+            <div class="type-card-title">Manufacturing Quality</div>
+            <div class="type-card-desc">In-process and final product checks for production facilities.</div>
+          </div>
+          <div class="type-card" onclick="selectType(this)" data-type="Supplier Audit">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#eaffe9;">🤝</div>
+            <div class="type-card-title">Supplier Audit</div>
+            <div class="type-card-desc">Comprehensive vendor evaluation and compliance verification.</div>
+          </div>
+          <div class="type-card" onclick="selectType(this)" data-type="Pre-Shipment Inspection">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#fffaeb;">📦</div>
+            <div class="type-card-title">Pre-Shipment Inspection</div>
+            <div class="type-card-desc">Verify goods before they leave the production facility.</div>
+          </div>
+          <div class="type-card" onclick="selectType(this)" data-type="Container Loading">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#fff1eb;">🚢</div>
+            <div class="type-card-title">Container Loading</div>
+            <div class="type-card-desc">Supervised loading with quantity and condition verification.</div>
+          </div>
+          <div class="type-card" onclick="selectType(this)" data-type="Lab Testing">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#edeee7;">🧪</div>
+            <div class="type-card-title">Lab Testing</div>
+            <div class="type-card-desc">Certified testing against regulatory and safety standards.</div>
+          </div>
+          <div class="type-card" onclick="selectType(this)" data-type="Social Compliance">
+            <div class="type-card-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="type-card-icon" style="background:#ffeeee;">📋</div>
+            <div class="type-card-title">Social Compliance</div>
+            <div class="type-card-desc">Workplace conditions, ethics and labour practice audits.</div>
+          </div>
+        </div>
+
+        <div class="divider-label">Product Information</div>
+
+        <div class="form-row mb-16">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Product Name <span class="required">*</span></label>
+            <input type="text" placeholder="e.g. Stainless Steel Valves" value="Industrial Water Pumps" />
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Product Category</label>
+            <div class="select-wrapper">
+              <select>
+                <option>Machinery & Equipment</option>
+                <option>Electronics</option>
+                <option>Apparel & Textiles</option>
+                <option>Furniture</option>
+                <option>Consumer Goods</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group" style="margin-bottom:0">
+            <label>PO Number</label>
+            <input type="text" placeholder="PO-XXXXXX" value="PO-2024-8842" />
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Total Quantity</label>
+            <input type="number" placeholder="0" value="500" />
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Unit</label>
+            <div class="select-wrapper">
+              <select>
+                <option>Units</option>
+                <option>Cartons</option>
+                <option>Pallets</option>
+                <option>kg</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-secondary" disabled>Back</button>
+        <button class="btn btn-primary" onclick="goToStep(2)">
+          Continue
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ STEP 2 ═══ -->
+  <div id="step2" class="hidden">
+    <div class="two-col">
+      <!-- Left: Calendar + Time -->
+      <div style="display:flex; flex-direction:column; gap:var(--sp-16);">
+        <div class="card">
+          <div class="card-header">
+            <h2>Select Date</h2>
+          </div>
+          <div class="card-body" style="padding: var(--sp-16) var(--sp-16) var(--sp-20)">
+            <div class="cal">
+              <div class="cal-header">
+                <button class="cal-nav">&#8249;</button>
+                <span class="cal-header-month">April 2026</span>
+                <button class="cal-nav">&#8250;</button>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-days-header">
+                  <div class="cal-day-name">Su</div><div class="cal-day-name">Mo</div>
+                  <div class="cal-day-name">Tu</div><div class="cal-day-name">We</div>
+                  <div class="cal-day-name">Th</div><div class="cal-day-name">Fr</div>
+                  <div class="cal-day-name">Sa</div>
+                </div>
+                <div class="cal-days" id="calDays"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Preferred Start Time</h2>
+            <p>Inspection window is typically 4–6 hours</p>
+          </div>
+          <div class="card-body">
+            <div class="time-grid">
+              <div class="time-slot" onclick="selectTime(this)">08:00</div>
+              <div class="time-slot" onclick="selectTime(this)">09:00</div>
+              <div class="time-slot selected" onclick="selectTime(this)">10:00</div>
+              <div class="time-slot" onclick="selectTime(this)">11:00</div>
+              <div class="time-slot unavailable">12:00</div>
+              <div class="time-slot" onclick="selectTime(this)">13:00</div>
+              <div class="time-slot" onclick="selectTime(this)">14:00</div>
+              <div class="time-slot unavailable">15:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Location + Details -->
+      <div style="display:flex; flex-direction:column; gap:var(--sp-16);">
+        <div class="card">
+          <div class="card-header">
+            <h2>Facility Location</h2>
+            <p>Where should the inspector visit?</p>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Supplier / Factory Name <span class="required">*</span></label>
+              <input type="text" placeholder="Factory name" value="Guangzhou Precision Manufacturing Co." />
+            </div>
+            <div class="form-group">
+              <label>Country <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select>
+                  <option>China</option>
+                  <option>Vietnam</option>
+                  <option>India</option>
+                  <option>Bangladesh</option>
+                  <option>Mexico</option>
+                  <option>Turkey</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>City / Province</label>
+              <input type="text" placeholder="City" value="Guangzhou, Guangdong" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Street Address</label>
+              <input type="text" placeholder="Full address" value="No. 88 Huangpu Avenue East" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>On-site Contact</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Contact Name <span class="required">*</span></label>
+              <input type="text" placeholder="Name" value="Chen Wei" />
+            </div>
+            <div class="form-row" style="margin-bottom:0">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Phone</label>
+                <input type="tel" placeholder="+86 XXX" value="+86 138 0013 8000" />
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Email</label>
+                <input type="email" placeholder="email" value="c.wei@gzprecision.com" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:var(--sp-16)">
+      <div class="card-footer" style="border-top:none; background:transparent;">
+        <button class="btn btn-secondary" onclick="goToStep(1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M10 12L6 8l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="goToStep(3)">
+          Continue
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ STEP 3 ═══ -->
+  <div id="step3" class="hidden">
+    <div class="card mb-16">
+      <div class="card-header">
+        <h2>Choose an Inspector</h2>
+        <p>All inspectors are certified and background-checked. Availability is for your selected date.</p>
+      </div>
+      <div class="card-body">
+        <div class="inspector-grid">
+          <div class="inspector-card selected" onclick="selectInspector(this)">
+            <div class="inspector-avatar" style="background:#506ec3;">LM</div>
+            <div class="inspector-info">
+              <div class="inspector-name">Li Ming</div>
+              <div class="inspector-role">Senior Quality Engineer · 9 yrs exp</div>
+              <div class="inspector-meta">
+                <span class="badge badge-success">Available</span>
+                <span class="inspector-rating"><span class="stars">★★★★★</span> 4.9</span>
+              </div>
+              <div class="text-sm text-muted" style="margin-top:6px;">Specialises in machinery & heavy equipment. Mandarin & English.</div>
+            </div>
+          </div>
+          <div class="inspector-card" onclick="selectInspector(this)">
+            <div class="inspector-avatar" style="background:#3f5eb6;">SR</div>
+            <div class="inspector-info">
+              <div class="inspector-name">Sara Ruiz</div>
+              <div class="inspector-role">Quality Auditor · 6 yrs exp</div>
+              <div class="inspector-meta">
+                <span class="badge badge-success">Available</span>
+                <span class="inspector-rating"><span class="stars">★★★★☆</span> 4.7</span>
+              </div>
+              <div class="text-sm text-muted" style="margin-top:6px;">Consumer goods, electronics. Spanish, English.</div>
+            </div>
+          </div>
+          <div class="inspector-card" onclick="selectInspector(this)">
+            <div class="inspector-avatar" style="background:#ff7f5c;">TN</div>
+            <div class="inspector-info">
+              <div class="inspector-name">Thanh Nguyen</div>
+              <div class="inspector-role">Compliance Specialist · 11 yrs exp</div>
+              <div class="inspector-meta">
+                <span class="badge badge-warning">Limited</span>
+                <span class="inspector-rating"><span class="stars">★★★★★</span> 4.8</span>
+              </div>
+              <div class="text-sm text-muted" style="margin-top:6px;">Supplier audits, social compliance. Vietnamese, English.</div>
+            </div>
+          </div>
+          <div class="inspector-card" onclick="selectInspector(this)">
+            <div class="inspector-avatar" style="background:#80351b;">AK</div>
+            <div class="inspector-info">
+              <div class="inspector-name">Amir Khan</div>
+              <div class="inspector-role">Lab Testing Lead · 8 yrs exp</div>
+              <div class="inspector-meta">
+                <span class="badge badge-neutral">Next day</span>
+                <span class="inspector-rating"><span class="stars">★★★★☆</span> 4.6</span>
+              </div>
+              <div class="text-sm text-muted" style="margin-top:6px;">Lab testing, regulatory compliance. Urdu, English.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-header">
+        <h2>Inspection Details & Criteria</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Inspection Scope <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select>
+              <option>Full Inspection (100% check)</option>
+              <option>AQL Level I (Reduced sampling)</option>
+              <option selected>AQL Level II (Normal sampling)</option>
+              <option>AQL Level III (Tightened sampling)</option>
+              <option>Visual Only</option>
+            </select>
+          </div>
+          <div class="input-hint">AQL Level II is the industry standard for most finished goods.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Key Quality Checkpoints</label>
+          <div style="display:flex; flex-wrap:wrap; gap:var(--sp-6); margin-bottom:var(--sp-8);">
+            <span class="chip">Dimensional accuracy ✕</span>
+            <span class="chip">Workmanship ✕</span>
+            <span class="chip">Packaging integrity ✕</span>
+            <span class="chip">Labels & markings ✕</span>
+            <span class="chip">+ Add checkpoint</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Special Instructions</label>
+          <textarea rows="3" placeholder="Any specific focus areas, test requirements, or documents to verify…">Please verify CE marking compliance and check all pump pressure ratings against spec sheet. Bring calibrated gauge.</textarea>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Options & Add-ons</p>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Expedited Report (same day)</div>
+            <div class="toggle-desc">Receive your inspection report by end of inspection day. +$45</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked />
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Photo Documentation</div>
+            <div class="toggle-desc">Inspector will take 50+ labelled photos. Included in all reports.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked />
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Video Summary</div>
+            <div class="toggle-desc">5-minute video walkthrough of key findings. +$30</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" />
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">Re-inspection Coverage</div>
+            <div class="toggle-desc">Free re-inspection if critical defects found and corrected. +$25</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" />
+            <div class="toggle-track"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-footer" style="border-top:none; background:transparent;">
+        <button class="btn btn-secondary" onclick="goToStep(2)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M10 12L6 8l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="goToStep(4)">
+          Review Booking
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ STEP 4 ═══ -->
+  <div id="step4" class="hidden">
+    <div class="two-col">
+      <!-- Summary -->
+      <div>
+        <div class="card mb-16">
+          <div class="card-header">
+            <h2>Booking Summary</h2>
+          </div>
+          <div class="card-body" style="padding-bottom:0">
+            <div class="list-item">
+              <div class="list-item-icon">🏭</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Manufacturing Quality Inspection</div>
+                <div class="list-item-sub">AQL Level II · Industrial Water Pumps</div>
+              </div>
+              <span class="badge badge-brand">PSI</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon">📅</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Wednesday, 15 April 2026</div>
+                <div class="list-item-sub">Starting at 10:00 AM · ~4–6 hrs</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon">📍</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Guangzhou Precision Manufacturing Co.</div>
+                <div class="list-item-sub">No. 88 Huangpu Ave East, Guangzhou, China</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon" style="background:#f0f2fa; font-size:14px; font-weight:600; color:#506ec3;">LM</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Li Ming</div>
+                <div class="list-item-sub">Senior Quality Engineer · <span class="stars">★★★★★</span> 4.9</div>
+              </div>
+              <span class="badge badge-success">Confirmed</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Your Details</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-row mb-16">
+              <div class="form-group" style="margin-bottom:0">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text" value="Alex" />
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text" value="Nieto" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Work Email <span class="required">*</span></label>
+              <input type="email" value="alex.nieto@company.com" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Company / Client Reference</label>
+              <input type="text" placeholder="Your company name" value="Acme Industrial Ltd." />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing + Confirm -->
+      <div>
+        <div class="card mb-16">
+          <div class="card-header">
+            <h2>Pricing Breakdown</h2>
+          </div>
+          <div class="card-body" style="padding-bottom: var(--sp-4)">
+            <div class="summary-panel">
+              <div class="summary-row">
+                <span class="summary-label">Manufacturing Quality Inspection</span>
+                <span class="summary-value">$299.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Expedited Report (same day)</span>
+                <span class="summary-value">$45.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Photo Documentation</span>
+                <span class="summary-value text-muted" style="font-weight:400">Included</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Travel Surcharge (Guangzhou)</span>
+                <span class="summary-value">$35.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Subtotal</span>
+                <span class="summary-value">$379.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label text-brand font-medium">Promo Code: QUALITY10</span>
+                <span class="summary-value" style="color:var(--success-fg)">−$37.90</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding: var(--sp-12) var(--sp-24) var(--sp-20)">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--sp-12) 0;">
+              <span style="font-size:16px; font-weight:600; color:var(--neu-1400)">Total Due</span>
+              <span style="font-size:22px; font-weight:600; color:var(--brand-primary)">$341.10</span>
+            </div>
+            <div class="input-hint" style="margin-top:0">Invoiced after inspection completion. Net-30 payment terms.</div>
+          </div>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header"><h2>Promo Code</h2></div>
+          <div class="card-body">
+            <div style="display:flex; gap:var(--sp-8);">
+              <input type="text" placeholder="Enter code" value="QUALITY10" style="flex:1" />
+              <button class="btn btn-secondary">Apply</button>
+            </div>
+            <div class="input-hint" style="color:var(--success-fg); margin-top:var(--sp-6);">✓ Code applied — 10% discount</div>
+          </div>
+        </div>
+
+        <div class="card mb-16">
+          <div class="card-header"><h2>Cancellation Policy</h2></div>
+          <div class="card-body" style="padding-top:var(--sp-12)">
+            <div class="list-item" style="padding:var(--sp-8) 0">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--success-fg);flex-shrink:0;margin-top:3px;"></div>
+              <div class="list-item-content">
+                <div class="list-item-title" style="font-size:13px">Free cancellation ≥ 48 hrs before</div>
+              </div>
+            </div>
+            <div class="list-item" style="padding:var(--sp-8) 0">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--warning-fg);flex-shrink:0;margin-top:3px;"></div>
+              <div class="list-item-content">
+                <div class="list-item-title" style="font-size:13px">50% fee within 24–48 hrs</div>
+              </div>
+            </div>
+            <div class="list-item" style="padding:var(--sp-8) 0;border-bottom:none">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--danger-fg);flex-shrink:0;margin-top:3px;"></div>
+              <div class="list-item-content">
+                <div class="list-item-title" style="font-size:13px">Full charge < 24 hrs or no-show</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:var(--sp-8); margin-bottom:var(--sp-16)">
+          <input type="checkbox" id="terms" checked style="width:auto; height:auto; margin-top:2px" />
+          <label for="terms" style="font-size:13px; color:var(--neu-1100); cursor:pointer; margin-bottom:0;">
+            I agree to the <a href="#" class="text-brand" style="font-weight:500">Terms of Service</a> and <a href="#" class="text-brand" style="font-weight:500">Inspection Agreement</a>.
+          </label>
+        </div>
+
+        <button class="btn btn-primary btn-lg" onclick="goToStep(5)" style="width:100%; justify-content:center;">
+          Confirm Booking
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 8h12M9 4l5 4-5 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="input-hint" style="text-align:center; margin-top:var(--sp-8);">You'll receive a confirmation email within minutes.</div>
+
+        <div style="margin-top:var(--sp-12)">
+          <button class="btn btn-secondary" onclick="goToStep(3)" style="width:100%; justify-content:center;">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M10 12L6 8l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ STEP 5: Confirmed ═══ -->
+  <div id="step5" class="hidden">
+    <div class="card">
+      <div class="confirm-hero">
+        <div class="confirm-icon">✓</div>
+        <h2 style="font-size:24px;font-weight:500;color:var(--neu-1400)">Inspection Booked Successfully!</h2>
+        <p class="text-muted" style="margin-top:var(--sp-8)">Your booking is confirmed. Li Ming will arrive at the facility on 15 April at 10:00 AM.</p>
+        <div class="confirm-code">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M14 3H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm-1 8H3V5h10v6z"/></svg>
+          QIB-2026-A4721
+        </div>
+      </div>
+
+      <div style="padding: 0 var(--sp-24) var(--sp-24)">
+        <div class="two-col">
+          <div>
+            <p class="section-title">What happens next</p>
+            <div class="list-item">
+              <div class="list-item-icon">📧</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Confirmation email sent</div>
+                <div class="list-item-sub">Check alex.nieto@company.com</div>
+              </div>
+              <span class="badge badge-success">Done</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon">🔔</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Inspector briefed</div>
+                <div class="list-item-sub">Li Ming notified with your specs</div>
+              </div>
+              <span class="badge badge-success">Done</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon">📋</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Pre-inspection checklist</div>
+                <div class="list-item-sub">Shared with site contact Chen Wei</div>
+              </div>
+              <span class="badge badge-warning">Pending</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon">📄</div>
+              <div class="list-item-content">
+                <div class="list-item-title">Report delivery</div>
+                <div class="list-item-sub">Same-day report by 6:00 PM on 15 Apr</div>
+              </div>
+              <span class="badge badge-neutral">Scheduled</span>
+            </div>
+          </div>
+          <div>
+            <p class="section-title">Booking Details</p>
+            <div class="summary-panel">
+              <div class="summary-row">
+                <span class="summary-label">Reference</span>
+                <span class="summary-value text-brand">QIB-2026-A4721</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Type</span>
+                <span class="summary-value">Manufacturing Quality</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Date & Time</span>
+                <span class="summary-value">15 Apr 2026, 10:00 AM</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Inspector</span>
+                <span class="summary-value">Li Ming</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Location</span>
+                <span class="summary-value">Guangzhou, China</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Total Charged</span>
+                <span class="summary-value">$341.10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer" style="justify-content:space-between">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M8 1v10M4 7l4 4 4-4M2 14h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download Summary
+        </button>
+        <div style="display:flex;gap:var(--sp-8)">
+          <button class="btn btn-secondary" onclick="goToStep(1)">Book Another</button>
+          <button class="btn btn-primary">View Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  /* ─── State ─── */
+  let currentStep = 1;
+
+  /* ─── Navigation ─── */
+  function goToStep(n) {
+    document.getElementById(`step${currentStep}`).classList.add('hidden');
+    document.getElementById(`step${n}`).classList.remove('hidden');
+
+    // Update step nav
+    for (let i = 1; i <= 4; i++) {
+      const nav = document.getElementById(`stepNav${i}`);
+      const num = document.getElementById(`stepNum${i}`);
+      nav.classList.remove('active', 'completed');
+      if (i < n) {
+        nav.classList.add('completed');
+        num.innerHTML = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      } else if (i === n) {
+        nav.classList.add('active');
+        num.textContent = i;
+      } else {
+        num.textContent = i;
+      }
+    }
+
+    // Progress bar
+    const fills = { 1: 25, 2: 50, 3: 75, 4: 100, 5: 100 };
+    document.getElementById('progressFill').style.width = `${fills[n] || 25}%`;
+
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ─── Type Selection ─── */
+  function selectType(card) {
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  /* ─── Time Selection ─── */
+  function selectTime(slot) {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    slot.classList.add('selected');
+  }
+
+  /* ─── Inspector Selection ─── */
+  function selectInspector(card) {
+    document.querySelectorAll('.inspector-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  /* ─── Calendar ─── */
+  function buildCalendar() {
+    const days = document.getElementById('calDays');
+    // April 2026: starts on Wednesday (day index 3)
+    const startDay = 3; // Wed
+    const totalDays = 30;
+    const today = 30; // March 30 → we're in April future
+    const selectedDay = 15;
+    const unavailable = [6, 7, 13, 14, 20, 21, 27, 28]; // weekends
+
+    let html = '';
+    for (let i = 0; i < startDay; i++) html += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= totalDays; d++) {
+      const isUnavail = unavailable.includes(d) ? 'unavailable' : '';
+      const isSel = d === selectedDay ? 'selected' : '';
+      html += `<div class="cal-day ${isUnavail} ${isSel}" onclick="selectDay(this, ${d})">${d}</div>`;
+    }
+    days.innerHTML = html;
+  }
+
+  function selectDay(el, d) {
+    document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  buildCalendar();
+</script>
+</body>
+</html>

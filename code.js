@@ -1,525 +1,469 @@
 // ============================================================
-// Organization Directory — Quince Vendor Portal
-// Run this plugin inside Figma to build the full screen +
-// linked prototype frames.
+// Onboard new organization — single-page form (rebuild)
+// Run this inside Figma via Plugins > Development > Run Plugin
+// File: pPTKp3TXepa3dMQ9sEuCPi
 // ============================================================
 
 async function main() {
-  // ── Font preload ──────────────────────────────────────────
   await Promise.all([
     figma.loadFontAsync({ family: 'Inter', style: 'Regular' }),
     figma.loadFontAsync({ family: 'Inter', style: 'Medium' }),
-    figma.loadFontAsync({ family: 'Inter', style: 'SemiBold' }),
+    figma.loadFontAsync({ family: 'Inter', style: 'Semi Bold' }),
+    figma.loadFontAsync({ family: 'Inter', style: 'Bold' }),
   ]);
 
-  const page = figma.currentPage;
-  page.name = 'Organization Directory';
-
-  // ── Helpers ───────────────────────────────────────────────
-  function hex(h) {
-    return {
-      r: parseInt(h.slice(1, 3), 16) / 255,
-      g: parseInt(h.slice(3, 5), 16) / 255,
-      b: parseInt(h.slice(5, 7), 16) / 255,
-    };
+  // ── Helpers ─────────────────────────────────────────────────
+  function hex(node, c, a = 1) {
+    const r = parseInt(c.slice(1,3),16)/255, g = parseInt(c.slice(3,5),16)/255, b = parseInt(c.slice(5,7),16)/255;
+    node.fills = [{ type:'SOLID', color:{r,g,b}, opacity:a }];
   }
-  function solidFill(h) { return [{ type: 'SOLID', color: hex(h) }]; }
-  function stroke(h, w = 1) {
-    return { strokes: [{ type: 'SOLID', color: hex(h) }], strokeWeight: w };
+  function noFill(node) { node.fills = []; }
+  function stroke(node, c, w = 1) {
+    const r = parseInt(c.slice(1,3),16)/255, g = parseInt(c.slice(3,5),16)/255, b = parseInt(c.slice(5,7),16)/255;
+    node.strokes = [{ type:'SOLID', color:{r,g,b} }];
+    node.strokeWeight = w; node.strokeAlign = 'INSIDE';
   }
-
-  function makeFrame(name, w, h) {
-    const f = figma.createFrame();
-    f.name = name;
-    f.resize(w, h);
-    f.fills = [];
-    return f;
-  }
-
-  function hStack(name, gap = 0) {
-    const f = figma.createFrame();
-    f.name = name;
-    f.layoutMode = 'HORIZONTAL';
-    f.primaryAxisSizingMode = 'HUG';
-    f.counterAxisSizingMode = 'HUG';
-    f.itemSpacing = gap;
-    f.fills = [];
-    return f;
-  }
-
-  function vStack(name, gap = 0) {
-    const f = figma.createFrame();
-    f.name = name;
-    f.layoutMode = 'VERTICAL';
-    f.primaryAxisSizingMode = 'HUG';
-    f.counterAxisSizingMode = 'HUG';
-    f.itemSpacing = gap;
-    f.fills = [];
-    return f;
-  }
-
-  function txt(content, size, style, colorHex, opts = {}) {
+  function txt(str, size, style, colorHex, opts = {}) {
     const t = figma.createText();
-    t.fontName = { family: 'Inter', style };
+    t.fontName = { family:'Inter', style };
     t.fontSize = size;
-    t.characters = content;
-    t.fills = solidFill(colorHex);
-    if (opts.opacity !== undefined) t.opacity = opts.opacity;
-    if (opts.letterSpacing !== undefined) t.letterSpacing = opts.letterSpacing;
+    t.characters = str;
+    hex(t, colorHex);
+    if (opts.w) { t.textAutoResize = 'HEIGHT'; t.resize(opts.w, 20); }
+    return t;
+  }
+  function fr(w, h, bg, radius = 0) {
+    const f = figma.createFrame();
+    f.resize(w, h);
+    if (bg) hex(f, bg); else noFill(f);
+    f.cornerRadius = radius;
+    f.clipsContent = false;
+    return f;
+  }
+  function place(parent, child, x, y) {
+    parent.appendChild(child);
+    child.x = x; child.y = y;
+    return child;
+  }
+  function divLine(w) {
+    const d = figma.createRectangle();
+    d.resize(w, 1);
+    hex(d, '#E5E7EB');
+    return d;
+  }
+  function inputField(label, placeholder, w, hint = null, disabled = false) {
+    const h = hint ? 88 : 72;
+    const wrap = fr(w, h, null);
+    const lbl = txt(label, 13, 'Medium', disabled ? '#9CA3AF' : '#374151');
+    place(wrap, lbl, 0, 0);
+    const bg = disabled ? '#F9FAFB' : '#FFFFFF';
+    const bd = disabled ? '#E5E7EB' : '#D1D5DB';
+    const box = fr(w, 40, bg, 6); stroke(box, bd);
+    if (disabled) box.opacity = 0.7;
+    const ph = txt(placeholder, 14, 'Regular', '#9CA3AF');
+    box.appendChild(ph); ph.x = 12; ph.y = 10;
+    place(wrap, box, 0, 22);
+    if (hint) {
+      const ht = txt(hint, 12, 'Regular', '#6B7280', { w });
+      place(wrap, ht, 0, 66);
+    }
+    return wrap;
+  }
+  function selectField(label, placeholder, w, disabled = false) {
+    const wrap = fr(w, 72, null);
+    const lbl = txt(label, 13, 'Medium', disabled ? '#9CA3AF' : '#374151');
+    place(wrap, lbl, 0, 0);
+    const bg = disabled ? '#F9FAFB' : '#FFFFFF';
+    const bd = disabled ? '#E5E7EB' : '#D1D5DB';
+    const box = fr(w, 40, bg, 6); stroke(box, bd);
+    if (disabled) box.opacity = 0.7;
+    const ph = txt(placeholder, 14, 'Regular', '#9CA3AF');
+    box.appendChild(ph); ph.x = 12; ph.y = 10;
+    const cv = txt('▾', 12, 'Regular', '#9CA3AF');
+    box.appendChild(cv); cv.x = w - 22; cv.y = 14;
+    place(wrap, box, 0, 22);
+    return wrap;
+  }
+  function sectionBand(title, subtitle, w) {
+    const band = fr(w, subtitle ? 64 : 48, '#F9FAFB');
+    stroke(band, '#E5E7EB'); band.strokeAlign = 'OUTSIDE';
+    const t = txt(title, 14, 'Semi Bold', '#111827');
+    place(band, t, 0, subtitle ? 10 : 14);
+    if (subtitle) {
+      const s = txt(subtitle, 13, 'Regular', '#6B7280', { w: w - 0 });
+      place(band, s, 0, 34);
+    }
+    return band;
+  }
+  function subLabel(str, w) {
+    const t = txt(str, 12, 'Semi Bold', '#6B7280', { w });
+    t.letterSpacing = { value: 0.4, unit: 'PIXELS' };
     return t;
   }
 
-  // Pill badge (type badge or status pill)
-  function badge(label, bgHex, textHex, dotHex = null) {
-    const f = hStack('badge-' + label, 5);
-    f.primaryAxisAlignItems = 'CENTER';
-    f.counterAxisAlignItems = 'CENTER';
-    f.paddingLeft = f.paddingRight = 8;
-    f.paddingTop = f.paddingBottom = 3;
-    f.cornerRadius = 100;
-    f.fills = solidFill(bgHex);
-    if (dotHex) {
-      const dot = figma.createEllipse();
-      dot.resize(6, 6);
-      dot.fills = solidFill(dotHex);
-      f.appendChild(dot);
+  // ── Map tile helper (compact) ────────────────────────────────
+  function buildMapTile(w, h, lat, lng, pinColor) {
+    const tile = fr(w, h, '#E8E4DC', 8);
+    stroke(tile, '#D1D5DB');
+
+    // Street grid
+    const streets = [
+      { x:0, y:h*0.35, w, h:2 }, { x:0, y:h*0.6, w, h:2 },
+      { x:w*0.3, y:0, w:2, h }, { x:w*0.6, y:0, w:2, h },
+    ];
+    for (const s of streets) {
+      const r = figma.createRectangle();
+      r.resize(Math.max(s.w,2), Math.max(s.h,2));
+      hex(r, '#FFFFFF'); r.opacity = 0.8;
+      tile.appendChild(r); r.x = s.x; r.y = s.y;
     }
-    const l = txt(label, 11, 'Medium', textHex);
-    f.appendChild(l);
-    return f;
+    // Park blob
+    const park = figma.createEllipse();
+    park.resize(w*0.18, h*0.22);
+    hex(park, '#C8DEC0'); park.opacity = 0.9;
+    tile.appendChild(park); park.x = w*0.65; park.y = h*0.1;
+
+    // Pin marker
+    const pinX = w * 0.45, pinY = h * 0.38;
+    const pinOuter = figma.createEllipse();
+    pinOuter.resize(22, 22);
+    hex(pinOuter, '#FFFFFF');
+    pinOuter.effects = [{ type:'DROP_SHADOW', color:{r:0,g:0,b:0,a:0.25}, offset:{x:0,y:2}, radius:6, spread:0, visible:true, blendMode:'NORMAL' }];
+    tile.appendChild(pinOuter); pinOuter.x = pinX - 11; pinOuter.y = pinY - 11;
+    const pinDot = figma.createEllipse();
+    pinDot.resize(12, 12);
+    hex(pinDot, pinColor);
+    tile.appendChild(pinDot); pinDot.x = pinX - 6; pinDot.y = pinY - 6;
+
+    // Pointer triangle
+    const pointer = figma.createPolygon();
+    pointer.pointCount = 3;
+    pointer.resize(10, 8);
+    hex(pointer, pinColor); pointer.rotation = 180;
+    tile.appendChild(pointer); pointer.x = pinX + 3; pointer.y = pinY + 10;
+
+    // Coords chip
+    const chip = fr(160, 24, '#1F2937', 4);
+    chip.opacity = 0.88;
+    const chipTxt = txt(`${lat}° N,  ${lng}° E`, 11, 'Regular', '#FFFFFF');
+    chip.appendChild(chipTxt); chipTxt.x = 10; chipTxt.y = 5;
+    tile.appendChild(chip); chip.x = (w - 160)/2; chip.y = h - 32;
+
+    return tile;
   }
 
-  // Rounded button
-  function button(label, bgHex, textHex, borderHex = null) {
-    const f = hStack('btn-' + label, 0);
-    f.primaryAxisAlignItems = 'CENTER';
-    f.counterAxisAlignItems = 'CENTER';
-    f.paddingLeft = f.paddingRight = 14;
-    f.paddingTop = f.paddingBottom = 9;
-    f.cornerRadius = 8;
-    f.fills = solidFill(bgHex);
-    if (borderHex) {
-      f.strokes = [{ type: 'SOLID', color: hex(borderHex) }];
-      f.strokeWeight = 1;
+  // ── Checkbox row ─────────────────────────────────────────────
+  function checkboxRow(label, checked, w) {
+    const wrap = fr(w, 28, null);
+    // Box
+    const box = fr(18, 18, checked ? '#2563EB' : '#FFFFFF', 4);
+    stroke(box, checked ? '#2563EB' : '#D1D5DB');
+    if (checked) {
+      const ck = txt('✓', 11, 'Bold', '#FFFFFF');
+      box.appendChild(ck); ck.x = 3; ck.y = 2;
     }
-    f.appendChild(txt(label, 13, 'Medium', textHex));
-    return f;
+    place(wrap, box, 0, 5);
+    const lbl = txt(label, 14, 'Regular', '#374151');
+    place(wrap, lbl, 26, 6);
+    return wrap;
   }
 
-  // Input / dropdown row item
-  function inputBox(placeholder, w = 200) {
-    const f = hStack('input-' + placeholder, 0);
-    f.primaryAxisAlignItems = 'CENTER';
-    f.counterAxisAlignItems = 'CENTER';
-    f.paddingLeft = f.paddingRight = 12;
-    f.paddingTop = f.paddingBottom = 0;
-    f.resize(w, 36);
-    f.primaryAxisSizingMode = 'FIXED';
-    f.counterAxisSizingMode = 'FIXED';
-    f.cornerRadius = 8;
-    f.fills = solidFill('#FFFFFF');
-    f.strokes = [{ type: 'SOLID', color: hex('#E5E5E3') }];
-    f.strokeWeight = 1;
-    const t = txt(placeholder, 12, 'Regular', '#9E9E9C');
-    f.appendChild(t);
-    return f;
+  // ── Suffix input (value + unit tag) ─────────────────────────
+  function suffixInput(label, placeholder, suffix, colW) {
+    const wrap = fr(colW, 72, null);
+    const lbl = txt(label, 13, 'Medium', '#374151');
+    place(wrap, lbl, 0, 0);
+    const box = fr(colW, 40, '#FFFFFF', 6);
+    stroke(box, '#D1D5DB');
+    const ph = txt(placeholder, 14, 'Regular', '#9CA3AF');
+    box.appendChild(ph); ph.x = 12; ph.y = 10;
+    // suffix badge
+    const badge = fr(suffix.length * 7 + 16, 28, '#F3F4F6', 4);
+    badge.appendChild(txt(suffix, 12, 'Medium', '#6B7280'));
+    badge.children[0].x = 8; badge.children[0].y = 6;
+    box.appendChild(badge); badge.x = colW - badge.width - 6; badge.y = 6;
+    place(wrap, box, 0, 22);
+    return wrap;
   }
 
-  // Checkbox
-  function checkbox() {
-    const box = figma.createRectangle();
-    box.resize(14, 14);
-    box.cornerRadius = 3;
-    box.fills = solidFill('#FFFFFF');
-    box.strokes = [{ type: 'SOLID', color: hex('#CBCBC9') }];
-    box.strokeWeight = 1;
-    return box;
+  // ── Pill / badge ─────────────────────────────────────────────
+  function pill(label, bgHex, fgHex) {
+    const p = fr(label.length * 7 + 18, 24, bgHex, 12);
+    const t = txt(label, 12, 'Medium', fgHex);
+    p.appendChild(t); t.x = 9; t.y = 5;
+    return p;
   }
 
-  // ── Page dimensions ───────────────────────────────────────
-  const PAGE_W = 1440;
-  const CONTENT_W = 1280;
-  const LEFT = (PAGE_W - CONTENT_W) / 2; // 80px
-
-  // ── MAIN FRAME ────────────────────────────────────────────
-  const main = makeFrame('Organization Directory — Main', PAGE_W, 1080);
-  main.fills = solidFill('#F8F8F7');
-  main.x = 0; main.y = 0;
-  page.appendChild(main);
-
-  let curY = 32; // running Y cursor
-
-  // ── TOP BAR ───────────────────────────────────────────────
-  // Title block
-  const titleGroup = vStack('TitleGroup', 4);
-  titleGroup.x = LEFT; titleGroup.y = curY;
-  const pageTitle = txt('Organization directory', 20, 'Medium', '#111111');
-  const pageSub = txt('Vendors, factories, and 3P inspection companies', 13, 'Regular', '#6B6B69');
-  titleGroup.appendChild(pageTitle);
-  titleGroup.appendChild(pageSub);
-  main.appendChild(titleGroup);
-
-  // Buttons — top right
-  const btnRow = hStack('TopButtons', 8);
-  const exportBtn = button('Export CSV', '#FFFFFF', '#333333', '#E5E5E3');
-  const onboardBtn = button('+ Onboard org', '#185FA5', '#FFFFFF');
-  btnRow.appendChild(exportBtn);
-  btnRow.appendChild(onboardBtn);
-  // Position flush right
-  btnRow.x = LEFT + CONTENT_W - 260;
-  btnRow.y = curY + 4;
-  main.appendChild(btnRow);
-
-  curY += 72; // after top bar
-
-  // ── STAT CARDS ────────────────────────────────────────────
-  const cardDefs = [
-    { val: '142', label: 'Total vendors', sub: null, valColor: '#111111', subColor: null },
-    { val: '318', label: 'Factories', sub: null, valColor: '#111111', subColor: null },
-    { val: '27', label: '3P companies', sub: null, valColor: '#111111', subColor: null },
-    { val: '8', label: 'Certs expiring', sub: 'Within 30 days', valColor: '#92400E', subColor: '#92400E' },
-  ];
-  const cardW = (CONTENT_W - 3 * 12) / 4; // 4 cards with 12px gaps
-  cardDefs.forEach((def, i) => {
-    const card = vStack('Card-' + def.label, 4);
-    card.paddingLeft = card.paddingRight = 16;
-    card.paddingTop = card.paddingBottom = 16;
-    card.cornerRadius = 8;
-    card.fills = solidFill('#FFFFFF');
-    card.strokes = [{ type: 'SOLID', color: hex('#E5E5E3') }];
-    card.strokeWeight = 1;
-
-    card.appendChild(txt(def.val, 28, 'SemiBold', def.valColor));
-    card.appendChild(txt(def.label, 13, 'Regular', '#6B6B69'));
-    if (def.sub) card.appendChild(txt(def.sub, 11, 'Regular', def.subColor));
-
-    card.x = LEFT + i * (cardW + 12);
-    card.y = curY;
-    // Fix width
-    card.primaryAxisSizingMode = 'HUG';
-    card.counterAxisSizingMode = 'FIXED';
-    card.resize(cardW, card.height || 90);
-    main.appendChild(card);
-  });
-  curY += 90 + 24;
-
-  // ── TABS ─────────────────────────────────────────────────
-  const tabDefs = [
-    { label: 'All orgs (487)', active: true },
-    { label: 'Vendors (142)', active: false },
-    { label: 'Factories (318)', active: false },
-    { label: '3P companies (27)', active: false },
-  ];
-  const tabBar = hStack('Tabs', 0);
-  tabBar.x = LEFT; tabBar.y = curY;
-  tabBar.strokeWeight = 0;
-  tabBar.fills = [];
-  // Bottom border line for entire tab bar
-  tabBar.strokes = [{ type: 'SOLID', color: hex('#E5E5E3') }];
-  tabBar.strokeWeight = 1;
-  tabBar.strokeAlign = 'OUTSIDE';
-
-  tabDefs.forEach((td) => {
-    const tab = vStack('tab-' + td.label, 0);
-    tab.primaryAxisAlignItems = 'CENTER';
-    tab.counterAxisAlignItems = 'CENTER';
-    tab.paddingLeft = tab.paddingRight = 16;
-    tab.paddingBottom = 12;
-    tab.paddingTop = 0;
-    tab.fills = [];
-
-    const tLabel = txt(td.label, 13, td.active ? 'Medium' : 'Regular',
-      td.active ? '#185FA5' : '#6B6B69');
-    tab.appendChild(tLabel);
-
-    if (td.active) {
-      const underline = figma.createRectangle();
-      underline.resize(tLabel.width + 32, 2);
-      underline.fills = solidFill('#185FA5');
-      underline.y = 0;
-      tab.appendChild(underline);
-    }
-
-    tabBar.appendChild(tab);
-  });
-  main.appendChild(tabBar);
-  curY += 44;
-
-  // ── FILTER TOOLBAR ───────────────────────────────────────
-  const filterBar = hStack('FilterBar', 8);
-  filterBar.x = LEFT; filterBar.y = curY;
-
-  const searchBox = inputBox('Search by name, ID, or country…', 480);
-  filterBar.appendChild(searchBox);
-  filterBar.appendChild(inputBox('All countries', 160));
-  filterBar.appendChild(inputBox('All statuses', 140));
-  filterBar.appendChild(inputBox('All org types', 150));
-  main.appendChild(filterBar);
-  curY += 36 + 16;
-
-  // ── TABLE ─────────────────────────────────────────────────
-  const tableW = CONTENT_W;
-  const tableFrame = vStack('Table', 0);
-  tableFrame.x = LEFT; tableFrame.y = curY;
-  tableFrame.cornerRadius = 12;
-  tableFrame.fills = solidFill('#FFFFFF');
-  tableFrame.strokes = [{ type: 'SOLID', color: hex('#E5E5E3') }];
-  tableFrame.strokeWeight = 1;
-  tableFrame.clipsContent = true;
-  tableFrame.primaryAxisSizingMode = 'HUG';
-  tableFrame.counterAxisSizingMode = 'FIXED';
-  tableFrame.resize(tableW, 10);
-
-  // Column widths: checkbox(40) | name(260) | type(110) | country(100) | parent(180) | certs(120) | status(120) | action(80)
-  const COL = [40, 260, 110, 100, 180, 120, 120, 80];
-  const COL_LABELS = ['', 'Name / ID', 'Type', 'Country', 'Parent org', 'Certs', 'Status', ''];
-  const ROW_H = 56;
-
-  function tableRow(cells, isHeader = false, bgHex = '#FFFFFF') {
-    const row = hStack('Row', 0);
-    row.primaryAxisSizingMode = 'FIXED';
-    row.counterAxisSizingMode = 'FIXED';
-    row.resize(tableW, ROW_H);
-    row.fills = solidFill(bgHex);
-    row.primaryAxisAlignItems = 'CENTER';
-    row.counterAxisAlignItems = 'CENTER';
-    if (!isHeader) {
-      row.strokes = [{ type: 'SOLID', color: hex('#F0F0EE') }];
-      row.strokeWeight = 1;
-      row.strokeAlign = 'INSIDE';
-    }
-
-    cells.forEach((cellContent, ci) => {
-      const cell = hStack('cell-' + ci, 0);
-      cell.primaryAxisSizingMode = 'FIXED';
-      cell.counterAxisSizingMode = 'FIXED';
-      cell.resize(COL[ci], ROW_H);
-      cell.fills = [];
-      cell.paddingLeft = ci === 0 ? 16 : 0;
-      cell.paddingRight = ci === COL.length - 1 ? 16 : 0;
-      cell.primaryAxisAlignItems = ci === 0 ? 'CENTER' : 'MIN';
-      cell.counterAxisAlignItems = 'CENTER';
-
-      if (typeof cellContent === 'string') {
-        if (isHeader) {
-          if (cellContent) {
-            const ht = txt(cellContent.toUpperCase(), 11, 'Medium', '#9E9E9C');
-            ht.letterSpacing = { unit: 'PERCENT', value: 3 };
-            cell.appendChild(ht);
-          }
-        } else {
-          if (cellContent) cell.appendChild(txt(cellContent, 13, 'Regular', '#333333'));
-        }
-      } else if (cellContent !== null) {
-        cell.appendChild(cellContent);
-      }
-      row.appendChild(cell);
-    });
-    return row;
+  // ════════════════════════════════════════════════════════════
+  // REMOVE OLD FRAME
+  const OLD_IDS = ['44:2', '45:2'];
+  for (const id of OLD_IDS) {
+    const old = figma.getNodeById(id);
+    if (old) old.remove();
   }
 
-  // Header row
-  const headerRow = tableRow(
-    [null, ...COL_LABELS.slice(1)],
-    true,
-  );
-  headerRow.fills = solidFill('#F5F5F3');
-  tableFrame.appendChild(headerRow);
+  // ════════════════════════════════════════════════════════════
+  // PAGE FRAME
+  const PW = 1440;
+  const PAD = 48;
+  const IW = PW - PAD * 2; // 1344
+  const COL = (IW - 24) / 2; // ~660
+  const THIRD = (IW - 48) / 3; // ~416
 
-  // ── Data rows ─────────────────────────────────────────────
-  // Row 1 – M Square China
-  const nameCell1 = vStack('nameCell1', 2);
-  nameCell1.appendChild(txt('M Square China', 13, 'Medium', '#111111'));
-  nameCell1.appendChild(txt('MSQCH005', 11, 'Regular', '#9E9E9C'));
+  const page = fr(PW, 100, '#FFFFFF');
+  page.name = 'Onboard new organization';
+  page.x = 1560; page.y = 0;
+  figma.currentPage.appendChild(page);
 
-  const viewLink1 = txt('View →', 13, 'Medium', '#185FA5');
+  let py = 0; // running y cursor (absolute in page)
 
-  const row1 = tableRow([
-    checkbox(),
-    nameCell1,
-    badge('Vendor', '#EEEDFE', '#534AB7'),
-    txt('China', 13, 'Regular', '#333333'),
-    txt('—', 13, 'Regular', '#9E9E9C'),
-    txt('4 active', 13, 'Regular', '#333333'),
-    badge('Active', '#DCFCE7', '#166534', '#16A34A'),
-    viewLink1,
-  ]);
-  tableFrame.appendChild(row1);
+  // ── NAV BAR ─────────────────────────────────────────────────
+  const nav = fr(PW, 56, '#FFFFFF');
+  stroke(nav, '#E5E7EB'); nav.strokeAlign = 'OUTSIDE';
+  nav.effects = [{ type:'DROP_SHADOW', color:{r:0,g:0,b:0,a:0.06}, offset:{x:0,y:1}, radius:3, spread:0, visible:true, blendMode:'NORMAL' }];
+  place(page, nav, 0, py);
+  const backLnk = txt('← Organization directory', 14, 'Medium', '#2563EB');
+  place(nav, backLnk, PAD, 16);
+  const navT = txt('New Onboarding', 15, 'Semi Bold', '#111827');
+  place(nav, navT, (PW - 150)/2, 16);
+  py += 56;
 
-  // Row 2 – Dongguan (child, slightly indented name)
-  const nameCell2 = vStack('nameCell2', 2);
-  const indent = hStack('indent', 4);
-  indent.fills = [];
-  // indent marker
-  const indentBar = figma.createRectangle();
-  indentBar.resize(2, 16); indentBar.cornerRadius = 1; indentBar.fills = solidFill('#CBCBC9');
-  indent.appendChild(indentBar);
-  const nameStack2 = vStack('ns2', 2);
-  nameStack2.appendChild(txt('Dongguan City Hongrun Garments', 13, 'Medium', '#111111'));
-  nameStack2.appendChild(txt('MSQCH-F001', 11, 'Regular', '#9E9E9C'));
-  indent.appendChild(nameStack2);
-  nameCell2.appendChild(indent);
+  // ── PAGE HEADER ──────────────────────────────────────────────
+  const pgHdr = fr(PW, 72, '#F9FAFB');
+  stroke(pgHdr, '#E5E7EB'); pgHdr.strokeAlign = 'OUTSIDE';
+  place(page, pgHdr, 0, py);
+  place(pgHdr, txt('Organization directory  /  New Onboarding', 12, 'Regular', '#6B7280'), PAD, 12);
+  place(pgHdr, txt('New Onboarding', 22, 'Bold', '#111827'), PAD, 32);
+  py += 72;
 
-  const parentLink2 = txt('M Square China', 13, 'Regular', '#534AB7');
-  const certsCell2 = txt('1 expiring', 13, 'Regular', '#D97706');
-  const viewLink2 = txt('View →', 13, 'Medium', '#185FA5');
+  // ════════════════════════════════════════════════════════════
+  // SECTION 1 — Organization info
+  const s1Band = sectionBand('Organization info', 'Basic details about the organization being onboarded.', PW);
+  place(page, s1Band, 0, py); py += 64;
 
-  const row2 = tableRow([
-    checkbox(),
-    nameCell2,
-    badge('Factory', '#E1F5EE', '#0F6E56'),
-    txt('China', 13, 'Regular', '#333333'),
-    parentLink2,
-    certsCell2,
-    badge('Active', '#DCFCE7', '#166534', '#16A34A'),
-    viewLink2,
-  ]);
-  tableFrame.appendChild(row2);
+  py += 28;
+  place(page, inputField('Organization name *', 'e.g. Guangzhou Textile Co.', IW, 'Must match the legal registered name'), PAD, py);
+  py += 88 + 20;
 
-  // Row 3 – Bureau Veritas
-  const nameCell3 = vStack('nameCell3', 2);
-  nameCell3.appendChild(txt('Bureau Veritas Consumer Products', 13, 'Medium', '#111111'));
-  nameCell3.appendChild(txt('BV-3P-012', 11, 'Regular', '#9E9E9C'));
-  const viewLink3 = txt('View →', 13, 'Medium', '#185FA5');
+  place(page, selectField('Organization type *', 'Select type…  (Vendor / Factory / 3P Inspection)', COL), PAD, py);
+  place(page, selectField('Country of origin *', 'Select country…', COL), PAD + COL + 24, py);
+  py += 72 + 20;
 
-  const row3 = tableRow([
-    checkbox(),
-    nameCell3,
-    badge('3P company', '#FAEEDA', '#854F0B'),
-    txt('Global', 13, 'Regular', '#333333'),
-    txt('—', 13, 'Regular', '#9E9E9C'),
-    txt('2 accreditations', 13, 'Regular', '#333333'),
-    badge('Active', '#DCFCE7', '#166534', '#16A34A'),
-    viewLink3,
-  ]);
-  tableFrame.appendChild(row3);
+  place(page, inputField('Vendor / Parent ID', 'e.g. MSQCH005', COL, 'Leave blank to auto-generate'), PAD, py);
+  place(page, inputField('Year founded', 'e.g. 2008', COL), PAD + COL + 24, py);
+  py += 88 + 20;
 
-  // Row 4 – Hanoi Textile
-  const nameCell4 = vStack('nameCell4', 2);
-  nameCell4.appendChild(txt('Hanoi Textile Manufacturing', 13, 'Medium', '#111111'));
-  nameCell4.appendChild(txt('VN-FAC-087', 11, 'Regular', '#9E9E9C'));
-  const parentLink4 = txt('Nguyen Apparel Group', 13, 'Regular', '#534AB7');
-  const viewLink4 = txt('View →', 13, 'Medium', '#185FA5');
+  place(page, inputField('Website (optional)', 'https://', IW), PAD, py);
+  py += 72 + 32;
 
-  const row4 = tableRow([
-    checkbox(),
-    nameCell4,
-    badge('Factory', '#E1F5EE', '#0F6E56'),
-    txt('Vietnam', 13, 'Regular', '#333333'),
-    parentLink4,
-    txt('3 active', 13, 'Regular', '#333333'),
-    badge('Pending review', '#FEF9C3', '#854D0E', '#CA8A04'),
-    viewLink4,
-  ]);
-  tableFrame.appendChild(row4);
+  place(page, divLine(PW), 0, py); py += 1;
 
-  // Row 5 – Pacific Quality
-  const nameCell5 = vStack('nameCell5', 2);
-  nameCell5.appendChild(txt('Pacific Quality Inspections Ltd', 13, 'Medium', '#111111'));
-  nameCell5.appendChild(txt('PQI-3P-004', 11, 'Regular', '#9E9E9C'));
-  const viewLink5 = txt('View →', 13, 'Medium', '#185FA5');
+  // ════════════════════════════════════════════════════════════
+  // SECTION 2 — Location & address
+  const s2Band = sectionBand('Location & address', 'Manufacturing address and pickup logistics. GPS pin captured from map.', PW);
+  place(page, s2Band, 0, py); py += 64;
+  py += 28;
 
-  const row5 = tableRow([
-    checkbox(),
-    nameCell5,
-    badge('3P company', '#FAEEDA', '#854F0B'),
-    txt('Hong Kong', 13, 'Regular', '#333333'),
-    txt('—', 13, 'Regular', '#9E9E9C'),
-    txt('Contract expired', 13, 'Regular', '#9E9E9C'),
-    badge('Inactive', '#F3F3F2', '#6B6B69', '#CBCBC9'),
-    viewLink5,
-  ]);
-  tableFrame.appendChild(row5);
+  // ── Manufacturing address sub-section ───────────────────────
+  const mfgLabel = subLabel('MANUFACTURING ADDRESS', IW);
+  place(page, mfgLabel, PAD, py); py += 20 + 14;
 
-  main.appendChild(tableFrame);
-  curY += tableFrame.height + 16;
+  place(page, inputField('Street address *', 'e.g. 18/F Tower 1, Times Square', IW), PAD, py);
+  py += 72 + 20;
 
-  // ── PAGINATION FOOTER ─────────────────────────────────────
-  const pagination = hStack('Pagination', 8);
-  pagination.x = LEFT; pagination.y = curY;
-  pagination.primaryAxisSizingMode = 'FIXED';
-  pagination.counterAxisSizingMode = 'HUG';
-  pagination.resize(tableW, 36);
-  pagination.primaryAxisAlignItems = 'SPACE_BETWEEN';
-  pagination.counterAxisAlignItems = 'CENTER';
-  pagination.fills = [];
+  place(page, inputField('City *', 'e.g. Hong Kong', COL), PAD, py);
+  place(page, inputField('Province / Region', 'e.g. SAR', COL), PAD + COL + 24, py);
+  py += 72 + 20;
 
-  pagination.appendChild(txt('Showing 5 of 487 orgs', 13, 'Regular', '#6B6B69'));
+  place(page, inputField('Postal code', 'e.g. 518000', THIRD), PAD, py);
+  place(page, selectField('Country *', 'Select country…', THIRD * 2 + 24), PAD + THIRD + 24, py);
+  py += 72 + 24;
 
-  const pageButtons = hStack('PageButtons', 8);
-  pageButtons.appendChild(button('← Prev', '#FFFFFF', '#333333', '#E5E5E3'));
-  pageButtons.appendChild(button('Next →', '#FFFFFF', '#333333', '#E5E5E3'));
-  pagination.appendChild(pageButtons);
-  main.appendChild(pagination);
+  // Map pin area
+  const mapRowW = IW;
+  const mapTile = buildMapTile(440, 180, '22.3193', '114.1694', '#2563EB');
+  place(page, mapTile, PAD, py);
 
-  // ── PROTOTYPE DESTINATION FRAMES ─────────────────────────
-  // Frame A: Onboard org wizard
-  const frameA = makeFrame('Onboard org — wizard (step 1)', PAGE_W, 1080);
-  frameA.fills = solidFill('#F8F8F7');
-  frameA.x = PAGE_W + 120; frameA.y = 0;
-  const frameALabel = txt('Onboard org — wizard (step 1)', 24, 'Medium', '#9E9E9C');
-  frameALabel.x = (PAGE_W - 400) / 2; frameALabel.y = 500;
-  frameA.appendChild(frameALabel);
-  page.appendChild(frameA);
+  // Right of map: instructions + coords
+  const mapInfoX = PAD + 440 + 24;
+  const mapInfoW = IW - 440 - 24;
+  place(page, txt('Map pin', 13, 'Semi Bold', '#374151'), mapInfoX, py);
+  place(page, txt('Click on the map to drop a pin and capture the GPS coordinates for this address.', 13, 'Regular', '#6B7280', { w: mapInfoW }), mapInfoX, py + 22);
 
-  // Frame B: Vendor detail — M Square China
-  const frameB = makeFrame('Vendor detail — M Square China', PAGE_W, 1080);
-  frameB.fills = solidFill('#F8F8F7');
-  frameB.x = (PAGE_W + 120) * 2; frameB.y = 0;
-  const frameBLabel = txt('Vendor detail — M Square China', 24, 'Medium', '#9E9E9C');
-  frameBLabel.x = (PAGE_W - 380) / 2; frameBLabel.y = 500;
-  frameB.appendChild(frameBLabel);
-  page.appendChild(frameB);
+  // Coords display fields (read-only, populated from map)
+  const coordW = (mapInfoW - 16) / 2;
+  const latField = fr(coordW, 56, '#F9FAFB', 6); stroke(latField, '#E5E7EB');
+  const latLbl = txt('Latitude', 11, 'Medium', '#6B7280'); latField.appendChild(latLbl); latLbl.x = 10; latLbl.y = 8;
+  const latVal = txt('22.3193°', 14, 'Medium', '#111827'); latField.appendChild(latVal); latVal.x = 10; latVal.y = 26;
+  place(page, latField, mapInfoX, py + 70);
 
-  // Frame C: Factory detail — Dongguan Hongrun
-  const frameC = makeFrame('Factory detail — Dongguan Hongrun', PAGE_W, 1080);
-  frameC.fills = solidFill('#F8F8F7');
-  frameC.x = (PAGE_W + 120) * 3; frameC.y = 0;
-  const frameCLabel = txt('Factory detail — Dongguan Hongrun', 24, 'Medium', '#9E9E9C');
-  frameCLabel.x = (PAGE_W - 400) / 2; frameCLabel.y = 500;
-  frameC.appendChild(frameCLabel);
-  page.appendChild(frameC);
+  const lngField = fr(coordW, 56, '#F9FAFB', 6); stroke(lngField, '#E5E7EB');
+  const lngLbl = txt('Longitude', 11, 'Medium', '#6B7280'); lngField.appendChild(lngLbl); lngLbl.x = 10; lngLbl.y = 8;
+  const lngVal = txt('114.1694°', 14, 'Medium', '#111827'); lngField.appendChild(lngVal); lngVal.x = 10; lngVal.y = 26;
+  place(page, lngField, mapInfoX + coordW + 16, py + 70);
 
-  // Frame D: Vendors-only filtered view (duplicate of main with "Vendors" tab active)
-  const frameD = makeFrame('Organization Directory — Vendors view', PAGE_W, 1080);
-  frameD.fills = solidFill('#F8F8F7');
-  frameD.x = (PAGE_W + 120) * 4; frameD.y = 0;
-  const frameDLabel = txt('Organization Directory (Vendors tab active)', 24, 'Medium', '#9E9E9C');
-  frameDLabel.x = (PAGE_W - 500) / 2; frameDLabel.y = 500;
-  frameD.appendChild(frameDLabel);
-  page.appendChild(frameD);
+  const changePinLnk = txt('↺  Repin on map', 13, 'Medium', '#2563EB');
+  place(page, changePinLnk, mapInfoX, py + 140);
 
-  // ── PROTOTYPE CONNECTIONS ─────────────────────────────────
-  // Onboard btn → Frame A
-  onboardBtn.reactions = [{
-    action: { type: 'NODE', destinationId: frameA.id, navigation: 'NAVIGATE', transition: null, preserveScrollPosition: false },
-    trigger: { type: 'ON_CLICK' },
-  }];
+  py += 180 + 32;
 
-  // View → Row 1 (M Square China) → Frame B
-  viewLink1.reactions = [{
-    action: { type: 'NODE', destinationId: frameB.id, navigation: 'NAVIGATE', transition: null, preserveScrollPosition: false },
-    trigger: { type: 'ON_CLICK' },
-  }];
+  // ── Pickup address sub-section ───────────────────────────────
+  place(page, divLine(IW), PAD, py); py += 1 + 24;
 
-  // View → Row 2 (Dongguan) → Frame C
-  viewLink2.reactions = [{
-    action: { type: 'NODE', destinationId: frameC.id, navigation: 'NAVIGATE', transition: null, preserveScrollPosition: false },
-    trigger: { type: 'ON_CLICK' },
-  }];
+  const pickupLabel = subLabel('PICKUP ADDRESS', IW);
+  place(page, pickupLabel, PAD, py); py += 20 + 14;
 
-  // Vendors tab → Frame D
-  const vendorsTab = tabBar.children[1]; // 'Vendors (142)' is index 1
-  vendorsTab.reactions = [{
-    action: { type: 'NODE', destinationId: frameD.id, navigation: 'NAVIGATE', transition: null, preserveScrollPosition: false },
-    trigger: { type: 'ON_CLICK' },
-  }];
+  // Checkbox: same as manufacturing
+  const cbRow = checkboxRow('Same as manufacturing address', true, IW);
+  place(page, cbRow, PAD, py); py += 28 + 20;
 
-  // ── Wrap up ───────────────────────────────────────────────
-  figma.viewport.scrollAndZoomIntoView([main]);
-  figma.currentPage.selection = [main];
+  // Grayed-out pickup fields (disabled = checkbox is checked by default)
+  place(page, inputField('Street address', 'Same as manufacturing address', IW, null, true), PAD, py);
+  py += 72 + 16;
 
-  figma.closePlugin('Organization Directory screen built ✓');
+  place(page, inputField('City', '', COL, null, true), PAD, py);
+  place(page, inputField('Province / Region', '', COL, null, true), PAD + COL + 24, py);
+  py += 72 + 16;
+
+  place(page, inputField('Postal code', '', THIRD, null, true), PAD, py);
+  place(page, selectField('Country', 'Select country…', THIRD * 2 + 24, true), PAD + THIRD + 24, py);
+  py += 72 + 16;
+
+  // Pickup map (grayed/disabled)
+  const pickupMapWrap = fr(440, 180, '#F9FAFB', 8);
+  stroke(pickupMapWrap, '#E5E7EB');
+  pickupMapWrap.opacity = 0.5;
+  const pickupMapNote = txt('Pickup map pin — same location as above', 13, 'Regular', '#9CA3AF');
+  pickupMapWrap.appendChild(pickupMapNote);
+  pickupMapNote.x = 80; pickupMapNote.y = 78;
+  place(page, pickupMapWrap, PAD, py);
+  py += 180 + 32;
+
+  place(page, divLine(PW), 0, py); py += 1;
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION 3 — Production (Factory-specific)
+  const s3Band = fr(PW, 72, '#FFF7ED');
+  noFill(s3Band); hex(s3Band, '#FFF7ED');
+  stroke(s3Band, '#FED7AA'); s3Band.strokeAlign = 'OUTSIDE';
+  place(page, s3Band, 0, py);
+  // Factory icon pill
+  const factoryPill = pill('Factory only', '#FED7AA', '#92400E');
+  place(s3Band, factoryPill, PAD, 22);
+  const s3Title = txt('Production', 14, 'Semi Bold', '#111827');
+  place(s3Band, s3Title, PAD + factoryPill.width + 10, 12);
+  const s3Sub = txt('Shown when Organization type = Factory. Describes what and how much this factory can produce.', 13, 'Regular', '#78350F', { w: PW - PAD * 2 - factoryPill.width - 10 });
+  place(s3Band, s3Sub, PAD + factoryPill.width + 10, 34);
+  py += 72;
+  py += 28;
+
+  // Capabilities (full-width multi-select)
+  const capWrap = fr(IW, 72, null);
+  const capLbl = txt('Capabilities *', 13, 'Medium', '#374151');
+  place(capWrap, capLbl, 0, 0);
+  const capBox = fr(IW, 40, '#FFFFFF', 6); stroke(capBox, '#D1D5DB');
+  const capPh = txt('Select capabilities…  (e.g. Cut & Sew, Knitting, Embroidery, Dyeing, QC…)', 14, 'Regular', '#9CA3AF');
+  capBox.appendChild(capPh); capPh.x = 12; capPh.y = 10;
+  const capCv = txt('▾', 12, 'Regular', '#6B7280');
+  capBox.appendChild(capCv); capCv.x = IW - 22; capCv.y = 14;
+  place(capWrap, capBox, 0, 22);
+  place(page, capWrap, PAD, py); py += 72 + 20;
+
+  // Monthly capacity + Lead time
+  const capColW = (IW - 24) / 2;
+  place(page, suffixInput('Monthly capacity *', 'e.g. 120', '× 1,000 units', capColW), PAD, py);
+  place(page, suffixInput('Production lead time *', 'e.g. 45', 'days', capColW), PAD + capColW + 24, py);
+  py += 72 + 32;
+
+  place(page, divLine(PW), 0, py); py += 1;
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION 4 — Primary contact
+  const s4Band = sectionBand('Primary contact', 'Main point of contact at this organization.', PW);
+  place(page, s4Band, 0, py); py += 64;
+  py += 28;
+
+  place(page, inputField('First name *', 'e.g. Wei', COL), PAD, py);
+  place(page, inputField('Last name *', 'e.g. Zhang', COL), PAD + COL + 24, py);
+  py += 72 + 20;
+
+  place(page, inputField('Email *', 'name@company.com', COL), PAD, py);
+  place(page, inputField('Phone', '+1 (555) 000-0000', COL), PAD + COL + 24, py);
+  py += 72 + 20;
+
+  place(page, inputField('Title / Role', 'e.g. Supply Chain Manager', IW), PAD, py);
+  py += 72 + 32;
+
+  place(page, divLine(PW), 0, py); py += 1;
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION 5 — Certifications
+  const s5Band = sectionBand('Certifications (optional)', 'Add known certifications — can also be added after onboarding.', PW);
+  place(page, s5Band, 0, py); py += 64;
+  py += 28;
+
+  // Column headers
+  const CERT_COLS = [{ label:'Certification', w:380 }, { label:'Issuing body', w:300 }, { label:'Expiry date', w:200 }, { label:'Status', w:120 }];
+  let cx = PAD;
+  for (const cc of CERT_COLS) {
+    place(page, txt(cc.label, 12, 'Medium', '#6B7280'), cx, py);
+    cx += cc.w + 16;
+  }
+  py += 20 + 8;
+
+  // Cert row
+  const certRow = fr(IW, 40, null);
+  cx = 0;
+  for (const cc of CERT_COLS) {
+    const b = fr(cc.w, 40, '#FFFFFF', 6); stroke(b, '#D1D5DB');
+    const phs = ['e.g. ISO 9001', 'e.g. Bureau Veritas', 'MM/YYYY', 'Valid ▾'];
+    const ph = txt(phs[CERT_COLS.indexOf(cc)], 14, 'Regular', '#9CA3AF');
+    b.appendChild(ph); ph.x = 10; ph.y = 10;
+    place(certRow, b, cx, 0); cx += cc.w + 16;
+  }
+  // Remove button
+  const rmBtn = fr(36, 36, null); noFill(rmBtn);
+  const rmT = txt('×', 18, 'Regular', '#9CA3AF'); place(rmBtn, rmT, 10, 6);
+  place(certRow, rmBtn, cx, 2);
+  place(page, certRow, PAD, py); py += 40 + 14;
+
+  place(page, txt('+ Add certification', 13, 'Medium', '#2563EB'), PAD, py);
+  py += 20 + 32;
+
+  // ── Info note ────────────────────────────────────────────────
+  const noteRow = fr(PW, 48, '#EFF6FF');
+  place(page, noteRow, 0, py);
+  const noteDot = figma.createEllipse(); noteDot.resize(8, 8);
+  hex(noteDot, '#2563EB'); noteRow.appendChild(noteDot); noteDot.x = PAD; noteDot.y = 20;
+  const noteT = txt('Fields marked * are required. You can save a draft at any time and return to complete the form.', 13, 'Regular', '#1E40AF', { w: IW - 20 });
+  noteRow.appendChild(noteT); noteT.x = PAD + 16; noteT.y = 15;
+  py += 48;
+
+  // ── Footer ───────────────────────────────────────────────────
+  const foot = fr(PW, 64, '#FFFFFF');
+  foot.effects = [{ type:'DROP_SHADOW', color:{r:0,g:0,b:0,a:0.08}, offset:{x:0,y:-2}, radius:8, spread:0, visible:true, blendMode:'NORMAL' }];
+  place(page, foot, 0, py);
+
+  const cBtn = fr(100, 40, '#FFFFFF', 6); stroke(cBtn, '#D1D5DB');
+  place(cBtn, txt('Cancel', 14, 'Medium', '#374151'), 26, 10);
+  place(foot, cBtn, PAD, 12);
+
+  const sBtn = fr(130, 40, '#FFFFFF', 6); stroke(sBtn, '#2563EB');
+  place(sBtn, txt('Save draft', 14, 'Medium', '#2563EB'), 22, 10);
+  place(foot, sBtn, PAD + 116, 12);
+
+  const subBtn = fr(178, 40, '#1D4ED8', 6);
+  place(subBtn, txt('Submit onboarding', 14, 'Semi Bold', '#FFFFFF'), 16, 10);
+  place(foot, subBtn, PW - PAD - 178, 12);
+
+  py += 64;
+
+  // ── Resize page to exact content height ──────────────────────
+  page.resize(PW, py);
+
+  figma.currentPage.selection = [page];
+  figma.viewport.scrollAndZoomIntoView([page]);
+  figma.closePlugin(`Done — frame ${page.id}, height ${py}px`);
 }
 
-main().catch((err) => figma.closePlugin('Error: ' + err.message));
+main().catch(err => figma.closePlugin('Error: ' + err.message));
